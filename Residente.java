@@ -1,21 +1,25 @@
 public class Residente {
-    public String nombre;
-    public int Cedula;
-
+    private String nombre;
+    private String documento;
+ 
+    public Residente(String nombre, String documento) {
+        this.nombre = nombre;
+        this.documento = documento;
+    }
+ 
     public String getNombre() {
         return nombre;
     }
-
+ 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
-    public int getCedula() {
-        return Cedula;
+ 
+    public String getDocumento() {
+        return documento;
     }
-
-    public void setCedula(int cedula) {
-        Cedula = cedula;
+ 
+    public void setDocumento(String documento) {
+        this.documento = documento;
     }
-
 }
