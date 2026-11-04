@@ -1,27 +1,34 @@
-import java.util.Scanner;
-
+import java.time.LocalDate;
 public class Main {
     public static void main(String[] args) {
+        AdministradorConjunto admin = new AdministradorConjunto("Administrador");
 
-        System.out.println("Bienvenido al sistema de administración");
-        System.out.println("Ingrese el nombre del residente:");
-        Scanner scanner = new Scanner(System.in);
-        String nombreResidente = scanner.nextLine();
-        System.out.println("Bienvenido, " + nombreResidente + "!");
+        Residente residente = new Residente("Residente de prueba", "123456");
+        Propiedad casa4 = new Propiedad("Casa 4", "Calle 1 # 2-3", residente);
+        admin.registrarPropiedad(casa4);
 
-        // Crear un residente
-        Residente residente = new Residente();
-        residente.setNombre(nombreResidente);
+        try {
+            admin.registrarPropiedad(new Propiedad("Casa 4", "Otra dirección", residente));
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
 
-        // Crear una propiedad para el residente
-        System.out.println("Ingrese el identificador de la propiedad:");
-        String identificadorPropiedad = scanner.nextLine();
-        System.out.println("Ingrese la dirección de la propiedad:");
-        String direccionPropiedad = scanner.nextLine();
-        Propiedad propiedad = new Propiedad(identificadorPropiedad, direccionPropiedad, residente); 
-        System.out.println("Propiedad registrada exitosamente para el residente " + residente.getNombre() + ".");
-        
-        propiedad.registrarObligacion(new Multa(200.0, java.time.LocalDate.of(2024, 11, 30), "Pendiente"));
+        CuotaMensual cuota = new CuotaMensual(200000, LocalDate.now().minusDays(10), ObligacionFinanciera.PENDIENTE);
+        Multa multa = new Multa(50000, LocalDate.now().plusDays(15), ObligacionFinanciera.PENDIENTE);
+        casa4.registrarObligacion(cuota);
+        casa4.registrarObligacion(multa);
+
+        System.out.println("\nDeudas activas de " + casa4.getIdentificador() + ":");
+        for (ObligacionFinanciera ob : casa4.consultarDeudas()) {
+            System.out.println(" - " + ob.getClass().getSimpleName() + " | " + ob.getEstado()
+                    + " | $" + ob.calcularValor());
+        }
+        System.out.println("Deuda total: $" + casa4.calcularDeudaTotal());
+        System.out.println("Propiedades en cartera morosa: " + admin.generarReporteCarteraMorosa().size());
+
+        admin.registrarPago(cuota, cuota.calcularValor(), MetodoPago.PSE);
+        System.out.println("\nTras pagar la cuota -> estado: " + cuota.getEstado());
+        System.out.println("Deuda total: $" + casa4.calcularDeudaTotal());
+        System.out.println("Propiedades en cartera morosa: " + admin.generarReporteCarteraMorosa().size());
     }
 }
-
