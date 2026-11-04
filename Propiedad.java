@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Propiedad {
+    private static int totalPropiedades = 0;
+
     private String identificador;
     private String direccion;
     private Residente propietario;
@@ -14,6 +16,7 @@ public class Propiedad {
         this.propietario = propietario;
         this.obligaciones = new ArrayList<>();
         this.reservas = new ArrayList<>();
+        totalPropiedades++;
     }
 
     public void registrarObligacion(ObligacionFinanciera obligacion) {
@@ -26,12 +29,33 @@ public class Propiedad {
 
     public List<ObligacionFinanciera> consultarDeudas() {
         List<ObligacionFinanciera> deudas = new ArrayList<>();
-        for (ObligacionFinanciera ob : this.obligaciones) {
-            if ("Pendiente".equalsIgnoreCase(ob.getEstado())) {
+        for (ObligacionFinanciera ob : obligaciones) {
+            if (!ob.estaPagada()) {
                 deudas.add(ob);
             }
         }
         return deudas;
+    }
+
+    public double calcularDeudaTotal() {
+        double total = 0;
+        for (ObligacionFinanciera ob : obligaciones) {
+            total += ob.calcularValor();
+        }
+        return total;
+    }
+
+    public boolean tieneDeudasEnMora() {
+        for (ObligacionFinanciera ob : obligaciones) {
+            if (ob.estaEnMora()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int getTotalPropiedades() {
+        return totalPropiedades;
     }
 
     public String getIdentificador() {
