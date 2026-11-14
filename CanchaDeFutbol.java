@@ -2,7 +2,7 @@ Pubic class CanchaDeFutbol extends ZonaComun{
     private String tipoDeSuperficie;
     private boolean tieneIluminacion;
 
-    public SalonSocial(String nombre, int capacidadMaxima, double costoAlquiler,
+    public CanchaDeFutbol(String nombre, int capacidadMaxima, double costoAlquiler,
                        String tipoDeSuperficie, boolean tieneIluminacion) {
         super(nombre, capacidadMaxima, costoAlquiler);
         this.tipoDeSuperficie = tipoDeSuperficie;
