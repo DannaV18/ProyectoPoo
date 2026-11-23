@@ -20,4 +20,9 @@ public class Multa extends ObligacionFinanciera {
     public String getTipo() {
         return "Multa";
     }
+
+    @Override
+    public String getCodigoArchivo() {
+        return "MULTA";
+    }
 }
