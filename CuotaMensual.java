@@ -20,4 +20,9 @@ public class CuotaMensual extends ObligacionFinanciera {
     public String getTipo() {
         return "Cuota mensual";
     }
+
+    @Override
+    public String getCodigoArchivo() {
+        return "CUOTA";
+    }
 }
