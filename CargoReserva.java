@@ -21,4 +21,9 @@ public class CargoReserva extends ObligacionFinanciera {
     public String getTipo() {
         return "Reserva";
     }
+
+    @Override
+    public String getCodigoArchivo() {
+        return "RESERVA";
+    }
 }
