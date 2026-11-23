@@ -34,6 +34,9 @@ public abstract class ObligacionFinanciera implements Pagable {
     /** Tipo legible para la interfaz, por ejemplo "Cuota mensual". */
     public abstract String getTipo();
 
+    /** Código corto que usa el archivo de datos: CUOTA, MULTA o RESERVA. */
+    public abstract String getCodigoArchivo();
+
     public double calcularValor() {
         if (estaPagada()) {
             return 0;
