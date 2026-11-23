@@ -1,6 +1,0 @@
-target/
-*.class
-datos_conjunto.txt
-.idea/
-*.iml
-.vscode/
