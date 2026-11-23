@@ -1,61 +1,22 @@
-import java.util.ArrayList;
-import java.util.List;
+package conjunto.modelo;
 
+/**
+ * Casa o apartamento del conjunto. Su identificador (por ejemplo "Casa 4") es único
+ * dentro del conjunto; la unicidad se controla en la capa de negocio.
+ */
 public class Propiedad {
-    private static int totalPropiedades = 0;
 
-    private String identificador;
-    private String direccion;
-    private Residente propietario;
-    private List<ObligacionFinanciera> obligaciones;
-    private List<Reserva> reservas;
+    private final String identificador;
+    private final String direccion;
+    private final Residente residente;
 
-    public Propiedad(String identificador, String direccion, Residente propietario) {
-        this.identificador = identificador;
-        this.direccion = direccion;
-        this.propietario = propietario;
-        this.obligaciones = new ArrayList<>();
-        this.reservas = new ArrayList<>();
-        totalPropiedades++;
-    }
-
-    public void registrarObligacion(ObligacionFinanciera obligacion) {
-        obligaciones.add(obligacion);
-    }
-
-    public void registrarReserva(Reserva reserva) {
-        reservas.add(reserva);
-    }
-
-    public List<ObligacionFinanciera> consultarDeudas() {
-        List<ObligacionFinanciera> deudas = new ArrayList<>();
-        for (ObligacionFinanciera ob : obligaciones) {
-            if (!ob.estaPagada()) {
-                deudas.add(ob);
-            }
+    public Propiedad(String identificador, String direccion, Residente residente) {
+        this.identificador = Validar.texto(identificador, "El identificador de la propiedad es obligatorio.");
+        this.direccion = Validar.texto(direccion, "La dirección es obligatoria.");
+        if (residente == null) {
+            throw new IllegalArgumentException("Toda propiedad necesita un residente responsable.");
         }
-        return deudas;
-    }
-
-    public double calcularDeudaTotal() {
-        double total = 0;
-        for (ObligacionFinanciera ob : obligaciones) {
-            total += ob.calcularValor();
-        }
-        return total;
-    }
-
-    public boolean tieneDeudasEnMora() {
-        for (ObligacionFinanciera ob : obligaciones) {
-            if (ob.estaEnMora()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static int getTotalPropiedades() {
-        return totalPropiedades;
+        this.residente = residente;
     }
 
     public String getIdentificador() {
@@ -66,15 +27,12 @@ public class Propiedad {
         return direccion;
     }
 
-    public Residente getPropietario() {
-        return propietario;
+    public Residente getResidente() {
+        return residente;
     }
 
-    public List<ObligacionFinanciera> getObligaciones() {
-        return obligaciones;
-    }
-
-    public List<Reserva> getReservas() {
-        return reservas;
+    @Override
+    public String toString() {
+        return identificador;
     }
 }

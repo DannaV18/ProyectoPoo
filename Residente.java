@@ -1,25 +1,33 @@
+package conjunto.modelo;
+
+/**
+ * Persona responsable de una propiedad. El documento es la identidad y no cambia,
+ * por eso no tiene setter.
+ */
 public class Residente {
+
     private String nombre;
-    private String documento;
- 
+    private final String documento;
+
     public Residente(String nombre, String documento) {
-        this.nombre = nombre;
-        this.documento = documento;
+        this.nombre = Validar.texto(nombre, "El nombre del residente es obligatorio.");
+        this.documento = Validar.texto(documento, "El documento del residente es obligatorio.");
     }
- 
+
     public String getNombre() {
         return nombre;
     }
- 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+
+    public void cambiarNombre(String nuevoNombre) {
+        this.nombre = Validar.texto(nuevoNombre, "El nombre del residente es obligatorio.");
     }
- 
+
     public String getDocumento() {
         return documento;
     }
- 
-    public void setDocumento(String documento) {
-        this.documento = documento;
+
+    @Override
+    public String toString() {
+        return nombre + " (" + documento + ")";
     }
 }
