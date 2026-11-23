@@ -1,16 +1,26 @@
-Pubic class CanchaDeFutbol extends ZonaComun{
-    private String tipoDeSuperficie;
-    private boolean tieneIluminacion;
+package conjunto.modelo;
 
-    public CanchaDeFutbol(String nombre, int capacidadMaxima, double costoAlquiler,
-                       String tipoDeSuperficie, boolean tieneIluminacion) {
+/** Cancha deportiva. Puede tener iluminación para jugar de noche. */
+public class CanchaDeFutbol extends ZonaComun {
+
+    private final boolean tieneIluminacion;
+
+    public CanchaDeFutbol(String nombre, int capacidadMaxima, double costoAlquiler, boolean tieneIluminacion) {
         super(nombre, capacidadMaxima, costoAlquiler);
-        this.tipoDeSuperficie = tipoDeSuperficie;
         this.tieneIluminacion = tieneIluminacion;
-}
-  
+    }
+
+    public boolean isTieneIluminacion() {
+        return tieneIluminacion;
+    }
+
     @Override
-    public String obtenerReglas() {
-        return super.obtenerReglas() + " Depósito reembolsable de $" + valorDeposito + ".";
+    public String getTipo() {
+        return "CANCHA";
+    }
+
+    @Override
+    public String getDetalle() {
+        return String.valueOf(tieneIluminacion);
     }
 }

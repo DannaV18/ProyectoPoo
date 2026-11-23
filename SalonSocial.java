@@ -1,28 +1,26 @@
-public class SalonSocial extends ZonaComun {
-    private final boolean tieneCocina;
-    private final double valorDeposito;
+package conjunto.modelo;
 
-    public SalonSocial(String nombre, int capacidadMaxima, double costoAlquiler,
-                       boolean tieneCocina, double valorDeposito) {
+/** Salón social. Puede tener cocina. */
+public class SalonSocial extends ZonaComun {
+
+    private final boolean tieneCocina;
+
+    public SalonSocial(String nombre, int capacidadMaxima, double costoAlquiler, boolean tieneCocina) {
         super(nombre, capacidadMaxima, costoAlquiler);
         this.tieneCocina = tieneCocina;
-        this.valorDeposito = valorDeposito;
+    }
+
+    public boolean isTieneCocina() {
+        return tieneCocina;
     }
 
     @Override
-    public String obtenerReglas() {
-        return super.obtenerReglas() + " Depósito reembolsable de $" + valorDeposito + "."
-                + (tieneCocina ? " Incluye uso de cocina." : "");
+    public String getTipo() {
+        return "SALON";
     }
 
     @Override
-    public String getTipo() { return "SALON"; }
-
-    @Override
-    public java.util.List<String> getExtras() {
-        return java.util.List.of(String.valueOf(tieneCocina), String.valueOf(valorDeposito));
+    public String getDetalle() {
+        return String.valueOf(tieneCocina);
     }
-
-    public boolean isTieneCocina() { return tieneCocina; }
-    public double getValorDeposito() { return valorDeposito; }
 }
