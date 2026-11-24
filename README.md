@@ -66,3 +66,5 @@ La interfaz gráfica no se pudo compilar en el entorno donde se escribió porque
 
 - Al cancelar una reserva con costo, su cargo sigue pendiente en el historial de la propiedad. Revertirlo requeriría vincular el cargo con la reserva y guardar esa relación en el archivo.
 - No hay usuarios ni contraseñas: la ventana permite elegir qué propiedad actúa. Esa elección es de la interfaz, y la regla de quién puede cancelar sí se valida en negocio.
+
+https://github.com/DannaV18/ProyectoPoo/pull/1#issue-6592540273
