@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.SplitPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="conjunto.gui.PropiedadesController">
+   <padding>
+      <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+   </padding>
+   <top>
+      <VBox spacing="6.0">
+         <children>
+            <Label style="-fx-font-weight: bold;" text="1. Registrar propiedad y residente" />
+            <HBox spacing="8.0">
+               <children>
+                  <TextField fx:id="txtIdentificador" promptText="Identificador (ej. Casa 4)" />
+                  <TextField fx:id="txtDireccion" promptText="Dirección" />
+                  <TextField fx:id="txtNombreResidente" promptText="Nombre del residente" />
+                  <TextField fx:id="txtDocumento" promptText="Documento" />
+                  <Button onAction="#onRegistrarPropiedad" text="Registrar propiedad" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.42">
+         <items>
+            <VBox spacing="6.0">
+               <children>
+                  <Label style="-fx-font-weight: bold;" text="2. Propiedades del conjunto" />
+                  <TableView fx:id="tablaPropiedades" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colIdentificador" prefWidth="110.0" text="Propiedad" />
+                        <TableColumn fx:id="colDireccion" prefWidth="150.0" text="Dirección" />
+                        <TableColumn fx:id="colResidente" prefWidth="150.0" text="Residente" />
+                        <TableColumn fx:id="colDeuda" prefWidth="120.0" text="Deuda total" />
+                     </columns>
+                  </TableView>
+                  <Button onAction="#onReporteMorosos" text="Ver cartera morosa" />
+               </children>
+            </VBox>
+            <VBox spacing="6.0">
+               <children>
+                  <Label fx:id="lblPropiedadSeleccionada" style="-fx-font-weight: bold;" text="3. Obligaciones (seleccione una propiedad)" />
+                  <HBox spacing="8.0">
+                     <children>
+                        <ComboBox fx:id="comboTipo" promptText="Tipo" />
+                        <TextField fx:id="txtDescripcion" promptText="Descripción" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="txtValor" prefWidth="110.0" promptText="Valor" />
+                        <DatePicker fx:id="dpVencimiento" promptText="Vencimiento" />
+                        <Button onAction="#onAsignarObligacion" text="Asignar" />
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="chkSoloActivas" onAction="#onFiltrarObligaciones" text="Solo deudas activas (pendientes o en mora)" />
+                  <TableView fx:id="tablaObligaciones" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colTipo" prefWidth="110.0" text="Tipo" />
+                        <TableColumn fx:id="colDescripcion" prefWidth="160.0" text="Descripción" />
+                        <TableColumn fx:id="colValorPendiente" prefWidth="110.0" text="Saldo" />
+                        <TableColumn fx:id="colVencimiento" prefWidth="100.0" text="Vencimiento" />
+                        <TableColumn fx:id="colEstado" prefWidth="90.0" text="Estado" />
+                     </columns>
+                  </TableView>
+                  <HBox spacing="8.0">
+                     <children>
+                        <TextField fx:id="txtMontoPago" promptText="Monto a pagar (doble clic en una fila lo llena)" HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="comboMetodo" promptText="Método" />
+                        <Button onAction="#onRegistrarPago" text="Registrar pago" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="lblMensaje" />
+               </children>
+            </VBox>
+         </items>
+      </SplitPane>
+   </center>
+</BorderPane>

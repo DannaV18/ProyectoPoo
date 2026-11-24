@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="conjunto.gui.PrincipalController" prefHeight="700.0" prefWidth="1100.0">
+   <center>
+      <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE">
+         <tabs>
+            <Tab text="Propiedades y cobros" />
+            <Tab text="Zonas y reservas" />
+         </tabs>
+      </TabPane>
+   </center>
+</BorderPane>

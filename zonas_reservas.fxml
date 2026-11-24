@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="conjunto.gui.ZonasReservasController">
+   <padding>
+      <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+   </padding>
+   <center>
+      <SplitPane dividerPositions="0.45">
+         <items>
+            <VBox spacing="6.0">
+               <children>
+                  <Label style="-fx-font-weight: bold;" text="4. Zonas comunes" />
+                  <HBox spacing="8.0">
+                     <children>
+                        <ComboBox fx:id="comboTipoZona" promptText="Tipo" />
+                        <TextField fx:id="txtNombreZona" promptText="Nombre" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="txtCapacidad" prefWidth="80.0" promptText="Capacidad" />
+                        <TextField fx:id="txtCosto" prefWidth="100.0" promptText="Costo (0 = gratis)" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="8.0">
+                     <children>
+                        <CheckBox fx:id="chkEspecial" text="Tiene cocina" />
+                        <TextField fx:id="txtParrillas" prefWidth="120.0" promptText="Número de parrillas" />
+                        <Button onAction="#onCrearZona" text="Registrar zona" />
+                     </children>
+                  </HBox>
+                  <TableView fx:id="tablaZonas" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colNombreZona" prefWidth="150.0" text="Nombre" />
+                        <TableColumn fx:id="colTipoZona" prefWidth="120.0" text="Tipo" />
+                        <TableColumn fx:id="colCapacidad" prefWidth="90.0" text="Capacidad" />
+                        <TableColumn fx:id="colCosto" prefWidth="110.0" text="Alquiler" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox spacing="6.0">
+               <children>
+                  <Label style="-fx-font-weight: bold;" text="5. Reservas de zonas comunes" />
+                  <HBox spacing="8.0">
+                     <children>
+                        <ComboBox fx:id="comboPropiedad" promptText="Propiedad" />
+                        <ComboBox fx:id="comboZona" promptText="Zona" />
+                        <DatePicker fx:id="dpFecha" promptText="Fecha" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="8.0">
+                     <children>
+                        <TextField fx:id="txtInicio" prefWidth="90.0" promptText="Inicio HH:mm" />
+                        <TextField fx:id="txtFin" prefWidth="90.0" promptText="Fin HH:mm" />
+                        <Button onAction="#onSolicitarReserva" text="Solicitar reserva" />
+                        <Button onAction="#onVerDisponibilidad" text="Ver horarios ocupados" />
+                     </children>
+                  </HBox>
+                  <TableView fx:id="tablaReservas" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colRPropiedad" prefWidth="110.0" text="Propiedad" />
+                        <TableColumn fx:id="colRZona" prefWidth="130.0" text="Zona" />
+                        <TableColumn fx:id="colRFecha" prefWidth="100.0" text="Fecha" />
+                        <TableColumn fx:id="colRHorario" prefWidth="120.0" text="Horario" />
+                        <TableColumn fx:id="colREstado" prefWidth="90.0" text="Estado" />
+                     </columns>
+                  </TableView>
+                  <Label fx:id="lblMensaje" />
+               </children>
+            </VBox>
+         </items>
+      </SplitPane>
+   </center>
+</BorderPane>
