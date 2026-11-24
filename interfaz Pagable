@@ -1,4 +1,0 @@
-public interface Pagable {
-    void pagar(double monto, MetodoPago metodoPago);
-    boolean estaPagada();
-}

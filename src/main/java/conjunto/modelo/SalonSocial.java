@@ -1,3 +1,4 @@
+
 package conjunto.modelo;
 
 /** Salón social. Puede tener cocina. */

@@ -1,3 +1,4 @@
+
 package conjunto.modelo;
 
 /** Zona de asados con cantidad de parrillas. */
