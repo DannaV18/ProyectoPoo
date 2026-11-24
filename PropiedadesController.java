@@ -1,6 +1,7 @@
 package conjunto.gui;
 
 import conjunto.modelo.CargoReserva;
+import conjunto.modelo.Comprobante;
 import conjunto.modelo.CuotaMensual;
 import conjunto.modelo.MetodoPago;
 import conjunto.modelo.Multa;
@@ -191,6 +192,43 @@ public class PropiedadesController {
                     + obligacion.getEstado().getEtiqueta() + ".");
             alCambiarDatos.run();
         } catch (IllegalArgumentException | IllegalStateException | ReglaNegocioException e) {
+            Dialogos.aviso(e.getMessage());
+        }
+    }
+
+    /** RF-11: lista los pagos ya realizados de la propiedad seleccionada. */
+    @FXML
+    private void onVerHistorialPagos() {
+        Propiedad propiedad = tablaPropiedades.getSelectionModel().getSelectedItem();
+        if (propiedad == null) {
+            Dialogos.aviso("Seleccione una propiedad en la tabla.");
+            return;
+        }
+        List<ObligacionFinanciera> pagos = gestor.historialDePagos(propiedad.getIdentificador());
+        if (pagos.isEmpty()) {
+            Dialogos.info("Historial de pagos", "Esta propiedad todavía no tiene pagos registrados.");
+            return;
+        }
+        String texto = pagos.stream()
+                .map(p -> p.getFechaPago() + "  " + p.getTipo() + " - " + p.getDescripcion()
+                        + "  " + formatoDinero(p.getValorBase()) + "  (" + p.getMetodoPago() + ")")
+                .collect(Collectors.joining("\n"));
+        Dialogos.info("Historial de pagos de " + propiedad, texto);
+    }
+
+    /** RF-13: muestra el comprobante del pago seleccionado en la tabla de obligaciones. */
+    @FXML
+    private void onVerComprobante() {
+        Propiedad propiedad = tablaPropiedades.getSelectionModel().getSelectedItem();
+        ObligacionFinanciera obligacion = tablaObligaciones.getSelectionModel().getSelectedItem();
+        if (propiedad == null || obligacion == null) {
+            Dialogos.aviso("Seleccione una propiedad y una obligación pagada en las tablas.");
+            return;
+        }
+        try {
+            Comprobante comprobante = gestor.generarComprobante(propiedad.getIdentificador(), obligacion);
+            Dialogos.info("Comprobante de pago", comprobante.comoTexto());
+        } catch (IllegalArgumentException | IllegalStateException e) {
             Dialogos.aviso(e.getMessage());
         }
     }

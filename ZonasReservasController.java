@@ -147,6 +147,27 @@ public class ZonasReservasController {
         }
     }
 
+    /**
+     * RF-12: la propiedad elegida en la lista desplegable intenta cancelar la reserva seleccionada.
+     * La regla de quién puede cancelar la aplica GestorConjunto, no esta ventana.
+     */
+    @FXML
+    private void onCancelarReserva() {
+        Reserva reserva = tablaReservas.getSelectionModel().getSelectedItem();
+        Propiedad solicitante = comboPropiedad.getValue();
+        if (reserva == null || solicitante == null) {
+            Dialogos.aviso("Seleccione una reserva en la tabla y la propiedad que la cancela.");
+            return;
+        }
+        try {
+            gestor.cancelarReserva(solicitante.getIdentificador(), reserva);
+            lblMensaje.setText("Reserva cancelada. El horario quedó libre.");
+            alCambiarDatos.run();
+        } catch (ReglaNegocioException e) {
+            Dialogos.aviso(e.getMessage());
+        }
+    }
+
     /** RF-09 visible para el usuario: muestra qué horarios ya están tomados ese día. */
     @FXML
     private void onVerDisponibilidad() {
