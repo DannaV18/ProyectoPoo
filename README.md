@@ -1,7 +1,5 @@
 # Estudio: administración de un conjunto residencial
 
-Proyecto de **estudio** para repasar POO construyendo un sistema completo paso a paso.
-No es un entregable de equipo. Cada commit es un paso numerado del proceso.
 
 ## Estructura por paquetes
 
@@ -42,7 +40,7 @@ No es un entregable de equipo. Cada commit es un paso numerado del proceso.
 
 ## Cómo ejecutar
 
-**Pruebas de consola (no necesitan JavaFX):**
+**Pruebas de consola:**
 
 ```
 javac -d target/classes $(find src/main/java -name "*.java" ! -path "*/gui/*")
@@ -58,7 +56,7 @@ Resultado esperado: `15 de 15 comprobaciones correctas.`
 mvn javafx:run
 ```
 
-Para abrir las vistas en Scene Builder, usa `src/main/resources/conjunto/gui/principal.fxml`, `propiedades.fxml` y `zonas_reservas.fxml`.
+Abrir las vistas en Scene Builder: `src/main/resources/conjunto/gui/principal.fxml`, `propiedades.fxml` y `zonas_reservas.fxml`.
 
 ## Lo que todavía no está probado
 
