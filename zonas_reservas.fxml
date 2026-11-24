@@ -66,6 +66,7 @@
                         <TextField fx:id="txtFin" prefWidth="90.0" promptText="Fin HH:mm" />
                         <Button onAction="#onSolicitarReserva" text="Solicitar reserva" />
                         <Button onAction="#onVerDisponibilidad" text="Ver horarios ocupados" />
+                        <Button onAction="#onCancelarReserva" text="Cancelar reserva seleccionada" />
                      </children>
                   </HBox>
                   <TableView fx:id="tablaReservas" VBox.vgrow="ALWAYS">

@@ -81,6 +81,12 @@
                         <Button onAction="#onRegistrarPago" text="Registrar pago" />
                      </children>
                   </HBox>
+                  <HBox spacing="8.0">
+                     <children>
+                        <Button onAction="#onVerHistorialPagos" text="Historial de pagos" />
+                        <Button onAction="#onVerComprobante" text="Ver comprobante del pago seleccionado" />
+                     </children>
+                  </HBox>
                   <Label fx:id="lblMensaje" />
                </children>
             </VBox>
