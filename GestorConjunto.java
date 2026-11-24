@@ -1,6 +1,7 @@
 package conjunto.negocio;
 
 import conjunto.modelo.CargoReserva;
+import conjunto.modelo.Comprobante;
 import conjunto.modelo.MetodoPago;
 import conjunto.modelo.ObligacionFinanciera;
 import conjunto.modelo.Propiedad;
@@ -154,6 +155,38 @@ public class GestorConjunto {
             }
         }
         return resultado;
+    }
+
+    // ---------- Residente: historial, comprobantes y cancelación (RF-11, RF-12, RF-13) ----------
+
+    /** RF-11: solo las obligaciones pagadas de la propiedad, con su fecha y método de pago. */
+    public List<ObligacionFinanciera> historialDePagos(String identificadorPropiedad) {
+        return exigirPropiedad(identificadorPropiedad).getHistorial().stream()
+                .filter(ObligacionFinanciera::estaPagada)
+                .toList();
+    }
+
+    /** RF-13: comprobante de un pago ya realizado de la propiedad. */
+    public Comprobante generarComprobante(String identificadorPropiedad, ObligacionFinanciera obligacion) {
+        return Comprobante.de(exigirPropiedad(identificadorPropiedad), obligacion);
+    }
+
+    /**
+     * RF-12: solo la propiedad que hizo la reserva puede cancelarla. La reserva queda en estado
+     * CANCELADA y su horario vuelve a estar libre (el RF-09 solo cuenta reservas activas).
+     */
+    public void cancelarReserva(String identificadorPropiedad, Reserva reserva) {
+        Propiedad solicitante = exigirPropiedad(identificadorPropiedad);
+        if (!reservas.contains(reserva)) {
+            throw new ReglaNegocioException("La reserva no existe en el conjunto.");
+        }
+        if (!reserva.getPropiedad().getIdentificador().equals(solicitante.getIdentificador())) {
+            throw new ReglaNegocioException("Solo la propiedad que hizo la reserva puede cancelarla.");
+        }
+        if (!reserva.estaActiva()) {
+            throw new ReglaNegocioException("La reserva ya está cancelada.");
+        }
+        reserva.cancelar();
     }
 
     // ---------- Lectura para la interfaz y la persistencia ----------
