@@ -14,17 +14,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="conjunto.gui.ZonasReservasController">
+<BorderPane style="-fx-background-color: #9194cc;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="conjunto.gui.ZonasReservasController">
    <padding>
       <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
    </padding>
    <center>
       <SplitPane dividerPositions="0.45">
          <items>
-            <VBox spacing="6.0">
+            <VBox spacing="6.0" style="-fx-background-color: #9194cc;">
                <children>
-                  <Label style="-fx-font-weight: bold;" text="4. Zonas comunes" />
+                  <Label style="-fx-font-weight: bold;" text="4. Zonas comunes" textFill="#1b0c70" />
                   <HBox spacing="8.0">
                      <children>
                         <ComboBox fx:id="comboTipoZona" promptText="Tipo" />
@@ -50,9 +49,9 @@
                   </TableView>
                </children>
             </VBox>
-            <VBox spacing="6.0">
+            <VBox spacing="6.0" style="-fx-background-color: #9194cc;">
                <children>
-                  <Label style="-fx-font-weight: bold;" text="5. Reservas de zonas comunes" />
+                  <Label style="-fx-font-weight: bold;" text="5. Reservas de zonas comunes" textFill="#25187d" />
                   <HBox spacing="8.0">
                      <children>
                         <ComboBox fx:id="comboPropiedad" promptText="Propiedad" />

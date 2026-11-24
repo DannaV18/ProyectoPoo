@@ -6,23 +6,22 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.SplitPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="conjunto.gui.PropiedadesController">
+<BorderPane style="-fx-background-color: #9194cc;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="conjunto.gui.PropiedadesController">
    <padding>
       <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
    </padding>
    <top>
-      <VBox spacing="6.0">
+      <VBox spacing="6.0" style="-fx-background-color: #9194cc#b3b6ff;">
          <children>
-            <Label style="-fx-font-weight: bold;" text="1. Registrar propiedad y residente" />
+            <Label style="-fx-font-weight: bold;" text="1. Registrar propiedad y residente" textFill="#252b96" />
             <HBox spacing="8.0">
                <children>
                   <TextField fx:id="txtIdentificador" promptText="Identificador (ej. Casa 4)" />
@@ -38,9 +37,10 @@
    <center>
       <SplitPane dividerPositions="0.42">
          <items>
-            <VBox spacing="6.0">
+            <VBox spacing="6.0" style="-fx-background-color: #9194cc;">
                <children>
-                  <Label style="-fx-font-weight: bold;" text="2. Propiedades del conjunto" />
+                  <Label style="-fx-font-weight: bold;" text="2. Propiedades del conjunto" textFill="#302888" />
+                  <TextField fx:id="txtBuscarPropiedad" promptText="Buscar por identificador, dirección o residente..." />
                   <TableView fx:id="tablaPropiedades" VBox.vgrow="ALWAYS">
                      <columns>
                         <TableColumn fx:id="colIdentificador" prefWidth="110.0" text="Propiedad" />
@@ -49,12 +49,15 @@
                         <TableColumn fx:id="colDeuda" prefWidth="120.0" text="Deuda total" />
                      </columns>
                   </TableView>
-                  <Button onAction="#onReporteMorosos" text="Ver cartera morosa" />
+                  <Button blendMode="MULTIPLY" cache="true" onAction="#onReporteMorosos" text="Ver cartera morosa" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets></Button>
                </children>
             </VBox>
-            <VBox spacing="6.0">
+            <VBox spacing="6.0" style="-fx-background-color: #9194cc;">
                <children>
-                  <Label fx:id="lblPropiedadSeleccionada" style="-fx-font-weight: bold;" text="3. Obligaciones (seleccione una propiedad)" />
+                  <Label fx:id="lblPropiedadSeleccionada" style="-fx-font-weight: bold;" text="3. Obligaciones (seleccione una propiedad)" textFill="#393c9a" />
                   <HBox spacing="8.0">
                      <children>
                         <ComboBox fx:id="comboTipo" promptText="Tipo" />
@@ -74,14 +77,14 @@
                         <TableColumn fx:id="colEstado" prefWidth="90.0" text="Estado" />
                      </columns>
                   </TableView>
-                  <HBox spacing="8.0">
+                  <HBox spacing="8.0" style="-fx-background-color: #9194cc;">
                      <children>
                         <TextField fx:id="txtMontoPago" promptText="Monto a pagar (doble clic en una fila lo llena)" HBox.hgrow="ALWAYS" />
                         <ComboBox fx:id="comboMetodo" promptText="Método" />
                         <Button onAction="#onRegistrarPago" text="Registrar pago" />
                      </children>
                   </HBox>
-                  <HBox spacing="8.0">
+                  <HBox spacing="8.0" style="-fx-background-color: #9194cc;">
                      <children>
                         <Button onAction="#onVerHistorialPagos" text="Historial de pagos" />
                         <Button onAction="#onVerComprobante" text="Ver comprobante del pago seleccionado" />

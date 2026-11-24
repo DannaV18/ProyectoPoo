@@ -21,6 +21,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.ObservableList;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,6 +45,7 @@ public class PropiedadesController {
     @FXML private TableColumn<Propiedad, String> colDireccion;
     @FXML private TableColumn<Propiedad, String> colResidente;
     @FXML private TableColumn<Propiedad, String> colDeuda;
+    @FXML private TextField txtBuscarPropiedad;
 
     @FXML private Label lblPropiedadSeleccionada;
     @FXML private ComboBox<String> comboTipo;
@@ -64,6 +67,8 @@ public class PropiedadesController {
 
     private GestorConjunto gestor;
     private Runnable alCambiarDatos;
+    private final ObservableList<Propiedad> listaPropiedades = FXCollections.observableArrayList();
+    private FilteredList<Propiedad> propiedadesFiltradas;
 
     public void inicializar(GestorConjunto gestor, Runnable alCambiarDatos) {
         this.gestor = gestor;
@@ -105,18 +110,40 @@ public class PropiedadesController {
             });
             return fila;
         });
+        propiedadesFiltradas = new FilteredList<>(listaPropiedades, p -> true);
+        tablaPropiedades.setItems(propiedadesFiltradas);
+
+        if (txtBuscarPropiedad != null) {
+            txtBuscarPropiedad.textProperty().addListener((obs, anterior, nuevo) -> aplicarFiltroPropiedades(nuevo));
+        }
 
         refrescar();
     }
 
-    /** Vuelve a leer el gestor y actualiza las tablas, conservando la propiedad seleccionada. */
+
+    /** Vuelve a leer el gestor y actualiza las tablas, conservando la propiedad seleccionada y el filtro. */
     public void refrescar() {
         Propiedad seleccionada = tablaPropiedades.getSelectionModel().getSelectedItem();
-        tablaPropiedades.setItems(FXCollections.observableArrayList(gestor.getPropiedades()));
+        listaPropiedades.setAll(gestor.getPropiedades());
+        if (txtBuscarPropiedad != null) {
+            aplicarFiltroPropiedades(txtBuscarPropiedad.getText());
+        }
         if (seleccionada != null) {
             tablaPropiedades.getSelectionModel().select(seleccionada);
         }
         mostrarObligaciones(tablaPropiedades.getSelectionModel().getSelectedItem());
+    }
+
+    private void aplicarFiltroPropiedades(String textoBusqueda) {
+        String filtro = (textoBusqueda == null) ? "" : textoBusqueda.trim().toLowerCase(Locale.ROOT);
+        propiedadesFiltradas.setPredicate(propiedad -> {
+            if (filtro.isEmpty()) {
+                return true;
+            }
+            return propiedad.getIdentificador().toLowerCase(Locale.ROOT).contains(filtro)
+                    || propiedad.getDireccion().toLowerCase(Locale.ROOT).contains(filtro)
+                    || propiedad.getResidente().getNombre().toLowerCase(Locale.ROOT).contains(filtro);
+        });
     }
 
     private void mostrarObligaciones(Propiedad propiedad) {
