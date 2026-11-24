@@ -1,34 +1,46 @@
-import java.time.LocalDate;
-public class Main {
-    public static void main(String[] args) {
-        AdministradorConjunto admin = new AdministradorConjunto("Administrador");
+package conjunto.gui;
 
-        Residente residente = new Residente("Residente de prueba", "123456");
-        Propiedad casa4 = new Propiedad("Casa 4", "Calle 1 # 2-3", residente);
-        admin.registrarPropiedad(casa4);
+import conjunto.negocio.GestorConjunto;
+import conjunto.persistencia.PersistenciaException;
+import conjunto.persistencia.RepositorioArchivo;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
+import java.nio.file.Path;
+
+/** Punto de entrada. Carga los datos y muestra la ventana principal definida en principal.fxml. */
+public class Main extends Application {
+
+    private static final Path ARCHIVO_DATOS = Path.of("datos_conjunto.txt");
+
+    @Override
+    public void start(Stage ventana) throws Exception {
+        RepositorioArchivo repositorio = new RepositorioArchivo(ARCHIVO_DATOS);
+        GestorConjunto gestor;
         try {
-            admin.registrarPropiedad(new Propiedad("Casa 4", "Otra dirección", residente));
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
+            gestor = repositorio.cargar();
+        } catch (PersistenciaException e) {
+            // Si el archivo está dañado no se abre el programa: así no se sobrescriben datos que aún se pueden rescatar.
+            Dialogos.error(e.getMessage() + "\nCorrija el archivo y vuelva a abrir el programa.");
+            Platform.exit();
+            return;
         }
 
-        CuotaMensual cuota = new CuotaMensual(200000, LocalDate.now().minusDays(10), ObligacionFinanciera.PENDIENTE);
-        Multa multa = new Multa(50000, LocalDate.now().plusDays(15), ObligacionFinanciera.PENDIENTE);
-        casa4.registrarObligacion(cuota);
-        casa4.registrarObligacion(multa);
+        FXMLLoader cargador = new FXMLLoader(Main.class.getResource("principal.fxml"));
+        Parent raiz = cargador.load();
+        PrincipalController controlador = cargador.getController();
+        controlador.inicializar(gestor, repositorio);
 
-        System.out.println("\nDeudas activas de " + casa4.getIdentificador() + ":");
-        for (ObligacionFinanciera ob : casa4.consultarDeudas()) {
-            System.out.println(" - " + ob.getClass().getSimpleName() + " | " + ob.getEstado()
-                    + " | $" + ob.calcularValor());
-        }
-        System.out.println("Deuda total: $" + casa4.calcularDeudaTotal());
-        System.out.println("Propiedades en cartera morosa: " + admin.generarReporteCarteraMorosa().size());
+        ventana.setTitle("Administración del conjunto (estudio)");
+        ventana.setScene(new Scene(raiz, 1100, 700));
+        ventana.show();
+    }
 
-        admin.registrarPago(cuota, cuota.calcularValor(), MetodoPago.PSE);
-        System.out.println("\nTras pagar la cuota -> estado: " + cuota.getEstado());
-        System.out.println("Deuda total: $" + casa4.calcularDeudaTotal());
-        System.out.println("Propiedades en cartera morosa: " + admin.generarReporteCarteraMorosa().size());
+    public static void main(String[] args) {
+        launch(args);
     }
 }
