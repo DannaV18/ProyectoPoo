@@ -9,6 +9,7 @@ Este documento registra el procedimiento cronológico de análisis, diseño, pru
   Se realizó un diagrama UMl inicial, el cual fue una idea momentánea de cómo debería ir conectado todo.
 * **Ajuste realizado:** Inicialmente se consideró modelar lotes vacíos como un tipo especial de propiedad, pero al revisar el alcance se vio que eso complicaba innecesariamente la jerarquía de `Propiedad` sin aportar lógica relevante. Se descartó para centrar la herencia y el polimorfismo en los tipos de cobro.
   
+![image alt](https://github.com/DannaV18/ProyectoPoo/blob/9c068660a17548658b2ee118fb76610e957949af/doc/fotos/DiagramaUML_Inicial.jpeg)
 
 ### 2. Primer diseño orientado a objetos y diagrama UML actualizado a lo que se fue incluyendo (20/10/2026)
 * **Qué se hizo:** Se construyó el primer diagrama de clases para la Entrega 2, estructurando las entidades `Propiedad`, `Residente`, `AdministradorConjunto`, `ZonaComun`, `Reserva` (con su clase anidada `Horario`), las interfaces `Pagable` y `Reservable`, y la jerarquía de `ObligacionFinanciera` (`CuotaMensual`, `Multa` y `Reserva`).
