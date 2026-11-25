@@ -1,42 +1,40 @@
 package conjunto.modelo;
 
-public abstract class ZonaComun {
+public class Piscina extends ZonaComun {
 
-    private final String nombre;
-    private final int capacidadMaxima;
-    private final double costoAlquiler;
+    private final double profundidadMaxima;
+    private final boolean requiereCertificadoSalud;
 
-    protected ZonaComun(String nombre, int capacidadMaxima, double costoAlquiler) {
-        this.nombre = Validar.texto(nombre, "El nombre de la zona es obligatorio.");
-        if (capacidadMaxima <= 0) {
-            throw new IllegalArgumentException("La capacidad máxima debe ser mayor a cero.");
-        }
-        this.capacidadMaxima = capacidadMaxima;
-        this.costoAlquiler = Validar.noNegativo(costoAlquiler, "El costo de alquiler no puede ser negativo.");
+    public Piscina(String nombre, int capacidadMaxima, double costoAlquiler,
+                   double profundidadMaxima, boolean requiereCertificadoSalud) {
+        super(nombre, capacidadMaxima, costoAlquiler);
+        this.profundidadMaxima = Validar.positivo(profundidadMaxima, "La profundidad debe ser mayor a cero.");
+        this.requiereCertificadoSalud = requiereCertificadoSalud;
     }
 
-    public abstract String getTipo();
-
-    public abstract String getDetalle();
-
-    public boolean tieneCosto() {
-        return costoAlquiler > 0;
+    public double getProfundidadMaxima() {
+        return profundidadMaxima;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public int getCapacidadMaxima() {
-        return capacidadMaxima;
-    }
-
-    public double getCostoAlquiler() {
-        return costoAlquiler;
+    public boolean isRequiereCertificadoSalud() {
+        return requiereCertificadoSalud;
     }
 
     @Override
-    public String toString() {
-        return nombre;
+    public String getTipo() {
+        return "PISCINA";
+    }
+
+    @Override
+    public String getDetalle() {
+        return profundidadMaxima + "," + requiereCertificadoSalud;
+    }
+
+    public static Piscina desdeDetalle(String nombre, int capacidad, double costo, String detalle) {
+        String[] partes = detalle.split(",", -1);
+        if (partes.length != 2) {
+            throw new IllegalArgumentException("Detalle de piscina inválido: " + detalle);
+        }
+        return new Piscina(nombre, capacidad, costo, Double.parseDouble(partes[0]), Boolean.parseBoolean(partes[1]));
     }
 }
