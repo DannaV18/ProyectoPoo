@@ -1,4 +1,3 @@
-
 package conjunto.persistencia;
 
 import conjunto.modelo.CanchaDeFutbol;
@@ -30,18 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Guarda y carga el conjunto en un archivo de texto plano, un registro por línea:
- *
- * <pre>
- * ZONA;TIPO;nombre;capacidad;costo;detalle
- * PROPIEDAD;identificador;direccion;nombreResidente;documento
- * OBLIGACION;idPropiedad;TIPO;descripcion;valor;vencimiento;pagada;fechaPago;metodo
- * RESERVA;idPropiedad;nombreZona;fecha;inicio;fin;estado
- * </pre>
- *
- * <p>Las líneas que empiezan con # son comentarios y se ignoran.</p>
- */
 public class RepositorioArchivo {
 
     private static final String VACIO = "-";
@@ -52,12 +39,6 @@ public class RepositorioArchivo {
         this.ruta = ruta;
     }
 
-    // ---------- Cargar (RNF-01, RNF-02) ----------
-
-    /**
-     * Lee el archivo y reconstruye el conjunto. Si el archivo no existe, lo crea vacío
-     * y devuelve un conjunto nuevo (RNF-02). Si una línea está mal, avisa cuál es.
-     */
     public GestorConjunto cargar() throws PersistenciaException {
         GestorConjunto gestor = new GestorConjunto();
         if (!Files.exists(ruta)) {
@@ -114,13 +95,14 @@ public class RepositorioArchivo {
 
     private Propiedad crearPropiedad(String[] c, Map<String, Residente> residentes) {
         requerirCampos(c, 5);
-        // Un mismo residente puede tener varias propiedades: se reutiliza el objeto por documento.
         Residente residente = residentes.computeIfAbsent(c[4], doc -> new Residente(c[3], doc));
         return new Propiedad(c[1], c[2], residente);
     }
 
     private void agregarObligacion(String[] c, GestorConjunto gestor) {
-        requerirCampos(c, 9);
+        if (c.length != 9) {
+            requerirCampos(c, 10);
+        }
         Propiedad propiedad = gestor.buscarPropiedad(c[1])
                 .orElseThrow(() -> new IllegalArgumentException("Propiedad inexistente: " + c[1]));
         ObligacionFinanciera ob = switch (c[2]) {
@@ -130,7 +112,8 @@ public class RepositorioArchivo {
             default -> throw new IllegalArgumentException("Tipo de obligación desconocido: " + c[2]);
         };
         if (Boolean.parseBoolean(c[6])) {
-            ob.restaurarPago(LocalDate.parse(c[7]), MetodoPago.valueOf(c[8]));
+            double valorPagado = c.length == 10 ? Double.parseDouble(c[9]) : ob.getValorBase();
+            ob.restaurarPago(LocalDate.parse(c[7]), MetodoPago.valueOf(c[8]), valorPagado);
         }
         propiedad.registrarObligacion(ob);
     }
@@ -153,12 +136,6 @@ public class RepositorioArchivo {
         }
     }
 
-    // ---------- Guardar (RNF-01, y escritura segura) ----------
-
-    /**
-     * Escribe primero en un archivo temporal y luego lo reemplaza. Así, si algo falla a mitad
-     * de la escritura, el archivo original no queda corrupto.
-     */
     public void guardar(GestorConjunto gestor) throws PersistenciaException {
         List<String> lineas = new ArrayList<>();
         for (ZonaComun z : gestor.getZonas()) {
@@ -192,7 +169,8 @@ public class RepositorioArchivo {
                 String.valueOf(ob.getValorBase()), ob.getFechaVencimiento().toString(),
                 String.valueOf(ob.estaPagada()),
                 ob.getFechaPago() == null ? VACIO : ob.getFechaPago().toString(),
-                ob.getMetodoPago() == null ? VACIO : ob.getMetodoPago().name());
+                ob.getMetodoPago() == null ? VACIO : ob.getMetodoPago().name(),
+                ob.estaPagada() ? String.valueOf(ob.getValorPagado()) : VACIO);
     }
 
     private void moverReemplazando(Path temporal) throws IOException {
