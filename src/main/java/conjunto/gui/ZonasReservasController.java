@@ -1,6 +1,7 @@
 package conjunto.gui;
 
 import conjunto.modelo.CanchaDeFutbol;
+import conjunto.modelo.Piscina;
 import conjunto.modelo.Propiedad;
 import conjunto.modelo.Reserva;
 import conjunto.modelo.SalonSocial;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-/** Pestaña de zonas comunes (RF-07) y reservas (RF-08, RF-09). Delega todo en GestorConjunto. */
 public class ZonasReservasController {
 
     @FXML private ComboBox<String> comboTipoZona;
@@ -34,7 +34,7 @@ public class ZonasReservasController {
     @FXML private TextField txtCapacidad;
     @FXML private TextField txtCosto;
     @FXML private CheckBox chkEspecial;
-    @FXML private TextField txtParrillas;
+    @FXML private TextField txtDatoNumerico;
 
     @FXML private TableView<ZonaComun> tablaZonas;
     @FXML private TableColumn<ZonaComun, String> colNombreZona;
@@ -64,7 +64,7 @@ public class ZonasReservasController {
         this.gestor = gestor;
         this.alCambiarDatos = alCambiarDatos;
 
-        comboTipoZona.getItems().setAll("SALON", "BBQ", "CANCHA");
+        comboTipoZona.getItems().setAll("SALON", "BBQ", "CANCHA", "PISCINA");
         comboTipoZona.getSelectionModel().selectFirst();
         comboTipoZona.valueProperty().addListener((obs, anterior, nuevo) -> ajustarCamposPorTipo(nuevo));
         ajustarCamposPorTipo(comboTipoZona.getValue());
@@ -85,7 +85,6 @@ public class ZonasReservasController {
         refrescar();
     }
 
-    /** Actualiza tablas y listas desplegables, conservando las selecciones actuales. */
     public void refrescar() {
         tablaZonas.setItems(FXCollections.observableArrayList(gestor.getZonas()));
         tablaReservas.setItems(FXCollections.observableArrayList(gestor.getReservas()));
@@ -108,18 +107,20 @@ public class ZonasReservasController {
             double costo = Double.parseDouble(txtCosto.getText().trim());
             ZonaComun zona = switch (tipo) {
                 case "SALON" -> new SalonSocial(nombre, capacidad, costo, chkEspecial.isSelected());
-                case "BBQ" -> new ZonaBbq(nombre, capacidad, costo, Integer.parseInt(txtParrillas.getText().trim()));
+                case "BBQ" -> new ZonaBbq(nombre, capacidad, costo, Integer.parseInt(txtDatoNumerico.getText().trim()));
+                case "PISCINA" -> new Piscina(nombre, capacidad, costo,
+                        Double.parseDouble(txtDatoNumerico.getText().trim()), chkEspecial.isSelected());
                 default -> new CanchaDeFutbol(nombre, capacidad, costo, chkEspecial.isSelected());
             };
             gestor.configurarZonaComun(zona);
             txtNombreZona.clear();
             txtCapacidad.clear();
             txtCosto.clear();
-            txtParrillas.clear();
+            txtDatoNumerico.clear();
             lblMensaje.setText("Zona " + zona + " registrada.");
             alCambiarDatos.run();
         } catch (NumberFormatException e) {
-            Dialogos.aviso("La capacidad, el costo y las parrillas deben ser números válidos.");
+            Dialogos.aviso("La capacidad, el costo, las parrillas y la profundidad deben ser números válidos.");
         } catch (IllegalArgumentException | ReglaNegocioException e) {
             Dialogos.aviso(e.getMessage());
         }
@@ -147,10 +148,6 @@ public class ZonasReservasController {
         }
     }
 
-    /**
-     * RF-12: la propiedad elegida en la lista desplegable intenta cancelar la reserva seleccionada.
-     * La regla de quién puede cancelar la aplica GestorConjunto, no esta ventana.
-     */
     @FXML
     private void onCancelarReserva() {
         Reserva reserva = tablaReservas.getSelectionModel().getSelectedItem();
@@ -168,7 +165,6 @@ public class ZonasReservasController {
         }
     }
 
-    /** RF-09 visible para el usuario: muestra qué horarios ya están tomados ese día. */
     @FXML
     private void onVerDisponibilidad() {
         ZonaComun zona = comboZona.getValue();
@@ -189,14 +185,17 @@ public class ZonasReservasController {
     }
 
     private void ajustarCamposPorTipo(String tipo) {
-        boolean esBbq = "BBQ".equals(tipo);
-        txtParrillas.setVisible(esBbq);
-        txtParrillas.setManaged(esBbq);
-        chkEspecial.setVisible(!esBbq);
-        chkEspecial.setManaged(!esBbq);
+        boolean usaNumero = "BBQ".equals(tipo) || "PISCINA".equals(tipo);
+        boolean usaCasilla = !"BBQ".equals(tipo);
+        txtDatoNumerico.setVisible(usaNumero);
+        txtDatoNumerico.setManaged(usaNumero);
+        txtDatoNumerico.setPromptText("PISCINA".equals(tipo) ? "Profundidad (m)" : "Número de parrillas");
+        chkEspecial.setVisible(usaCasilla);
+        chkEspecial.setManaged(usaCasilla);
         chkEspecial.setText(switch (tipo) {
             case "SALON" -> "Tiene cocina";
             case "CANCHA" -> "Tiene iluminación";
+            case "PISCINA" -> "Requiere certificado de salud";
             default -> "";
         });
     }
@@ -205,6 +204,7 @@ public class ZonasReservasController {
         return switch (codigo) {
             case "SALON" -> "Salón social";
             case "BBQ" -> "Zona BBQ";
+            case "PISCINA" -> "Piscina";
             default -> "Cancha";
         };
     }
