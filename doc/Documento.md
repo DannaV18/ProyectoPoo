@@ -1,10 +1,49 @@
-Este documento registra las principales decisiones tomadas durante el diseño, evolución y desarrollo del sistema de administración del conjunto residencial, junto a su respectiva justificación y requerimientos.
+# Bitácora de Desarrollo y Evolución del Proyecto — Conjunto Residencial
 
-| Fecha | Decisión | Justificación | Requerimientos |
-|---|---|---|---|
-| 22/11/2026 | Actualización del diagrama UML y separación de `Reserva` y `CargoReserva` junto con la capa de `GestorConjunto` (negocio), persistencia en archivo plano (`RepositorioArchivo`) e interfaz gráfica en JavaFX | Al implementar el código final se requirió separar el uso del espacio (`Reserva`) del cobro financiero (`CargoReserva`) para permitir zonas gratuitas y cancelaciones sin afectar pagos; además, se centralizó la lógica de negocio en `GestorConjunto` eliminando `AdministradorConjunto`, se añadieron enumeraciones (`EstadoObligacion`, `EstadoReserva`, `MetodoPago`), comprobantes inmutables (`Comprobante`) y validaciones estrictas contra valores inválidos (`Validar`, redondeo a centavos)[cite: 4, 6] | RF-01 a RF-13, RNF-01, RNF-02 ![Diagrama UML Final](ruta/a/diagrama_uml_actualizado.png) |
-| 20/10/2026 | Creación del primer diagrama UML de clases orientado a objetos | Necesario para la Entrega 2 y para estructurar la arquitectura base del proyecto: se definieron las clases principales (`Propiedad`, `Residente`, `AdministradorConjunto`), las interfaces `Pagable` y `Reservable`, la clase anidada `Horario`, los atributos/métodos estáticos y la jerarquía de `ObligacionFinanciera` junto con el cálculo polimórfico en `calcularDeudaTotal()`[cite: 3, 6] | RF-01 a RF-09 ![Diagrama UML Inicial](ruta/a/diagrama_uml_inicial.png) |
-| 25/09/2026 | Incorporar el cálculo polimórfico de deudas (`calcularValor()`) y descartar lotes vacíos como subclases de `Propiedad` | Permite que cada tipo de obligación calcule su propio valor y recargo sin preguntar su tipo concreto, manteniendo sencilla la clase `Propiedad` y evitando jerarquías innecesarias[cite: 6] | RF-02, RF-04, RF-06 |
-| 20/09/2026 | Definir `Propiedad` y `GestorConjunto` (inicialmente `AdministradorConjunto`) como núcleo del sistema y enfocar el proyecto en un conjunto residencial | Se requiere una entidad central que coordine propiedades, residentes, cobros y zonas comunes, abordando un problema real de control de cartera morosa y cruces de reservas[cite: 6] | Todos |
+Este documento registra el procedimiento cronológico de análisis, diseño, pruebas y refactorización del sistema de administración del conjunto residencial, detallando tanto los avances implementados como los ajustes realizados al detectar limitaciones técnicas durante la programación.
 
-Todo lo declarado está sujeto a cambios en el transcurso del proyecto.
+---
+
+### 1. Definición inicial del dominio y alcance (20/09/2026)
+* **Qué se hizo:** Se definió el contexto del problema alrededor de la administración de un conjunto residencial de casas y el control de sus zonas comunes, estableciendo los actores principales (**Administrador** y **Residente**) y los requerimientos funcionales iniciales (`RF-01` a `RF-10`) junto con la persistencia básica (`RNF-01`, `RNF-02`).
+* **Ajuste realizado:** Inicialmente se consideró modelar lotes vacíos como un tipo especial de propiedad, pero al revisar el alcance se vio que eso complicaba innecesariamente la jerarquía de `Propiedad` sin aportar lógica relevante. Se descartó para centrar la herencia y el polimorfismo en los tipos de cobro.
+
+### 2. Primer diseño orientado a objetos y diagrama UML inicial (20/10/2026)
+* **Qué se hizo:** Se construyó el primer diagrama de clases para la Entrega 2, estructurando las entidades `Propiedad`, `Residente`, `AdministradorConjunto`, `ZonaComun`, `Reserva` (con su clase anidada `Horario`), las interfaces `Pagable` y `Reservable`, y la jerarquía de `ObligacionFinanciera` (`CuotaMensual`, `Multa` y `Reserva`).
+
+![Diagrama UML Inicial - 20/10/2026](ruta/a/diagrama_uml_inicial.png)
+
+* **Problemas detectados al intentar pasarlo a código:**
+  * **Fallo conceptual en `Reserva`:** En este diagrama `Reserva` heredaba directamente de `ObligacionFinanciera`. Al empezar a programar los casos de uso nos dimos cuenta de que **esto no podía funcionar así**: si un residente reservaba una zona gratuita (como la cancha), el sistema lo obligaba a crear una deuda financiera de $0, y cancelar una reserva implicaba tener que borrar o alterar registros del historial financiero de la propiedad.
+  * **Falta de contexto en `Reservable`:** Se intentó implementar `Reservable` dentro de `ZonaComun` (`estaDisponible(fecha, horario)`), pero al escribir el método se vio que una zona por sí sola no conoce la lista global de reservas del conjunto, por lo que no podía validar cruces de horario sin acoplarse a todo el sistema.
+  * **Clase anidada `Horario` innecesaria:** Mantener una clase interna `Horario` solo para guardar hora de inicio y fin agregaba código extra cuando `java.time.LocalTime` ya resolvía las comparaciones de intervalos de forma nativa.
+
+### 3. Reestructuración de arquitectura por capas y nacimiento de `GestorConjunto` (02/11/2026)
+* **Qué se hizo:** Se dividió el proyecto en paquetes separados (`conjunto.modelo`, `conjunto.negocio`, `conjunto.persistencia` y `conjunto.gui`) para evitar mezclar lógica de negocio con ventanas o archivos.
+* **Ajuste realizado:** En el diagrama del 20 de octubre existía la clase `AdministradorConjunto` dentro del modelo. Al implementar las reglas que cruzan varias entidades (como evitar propiedades duplicadas o bloquear reservas a morosos), vimos que `AdministradorConjunto` terminaba duplicando responsabilidades con la capa de negocio y quedaba sin uso real. Se decidió **eliminarla** y centralizar todos los casos de uso en `GestorConjunto` (en `conjunto.negocio`), apoyado por la excepción propia `ReglaNegocioException`.
+
+### 4. Separación entre `Reserva` y `CargoReserva`, y especialización de zonas (08/11/2026)
+* **Qué se hizo:** Se dividió el concepto de reserva en dos clases independientes:
+  1. `Reserva`: gestiona exclusivamente la propiedad solicitante, la zona, la fecha, `horaInicio`, `horaFin` (`LocalTime`) y su estado (`ACTIVA` o `CANCELADA`), incluyendo el método `seSolapaCon()` para detectar cruces.
+  2. `CargoReserva`: subclase de `ObligacionFinanciera` que únicamente se instancia en `GestorConjunto.solicitarReserva()` cuando la zona tiene un costo de alquiler mayor a cero, asignándole un plazo de pago de 15 días (`DIAS_PLAZO_RESERVA`).
+* **Ajuste realizado:** También se notó que `ZonaComun` como clase concreta no permitía diferenciar las características propias de cada espacio. Se convirtió en **clase abstracta** y se crearon sus cuatro especializaciones (`SalonSocial`, `ZonaBbq`, `CanchaDeFutbol` y `Piscina`), delegando en `getDetalle()` el formato específico de cada una para guardarlo en texto plano.
+
+### 5. Refactorización del polimorfismo y reemplazo de estáticos (13/11/2026)
+* **Qué se hizo:** Se simplificó el cálculo de deudas y se limpiaron los atributos estáticos que venían del diseño de octubre.
+* **Ajuste realizado:**
+  * En el diseño anterior cada subclase sobrescribía `calcularValor()`, repitiendo exactamente la misma fórmula matemática. Se cambió por un método plantilla en `ObligacionFinanciera` y se dejó como abstracto únicamente `tasaMora()`, donde `CuotaMensual` aporta `5 %`, `Multa` `10 %` y `CargoReserva` `0 %`.
+  * Los estáticos `valorCuotaBase`, `VALOR_BASE_MULTA` y `totalPropiedades` se descartaron porque en la práctica cada cobro tiene un monto variable ingresado desde la interfaz y el total se obtiene directamente del tamaño de la lista en `GestorConjunto`. En su lugar se dejaron constantes estáticas reales (`RECARGO_MORA`, `DIAS_PLAZO_RESERVA`) y métodos de fábrica/utilidad (`Comprobante.de()`, `Piscina.desdeDetalle()`, `Validar`).
+  * Se reemplazaron los estados manejados como `String` (propensos a errores de escritura) por las enumeraciones `EstadoObligacion`, `EstadoReserva` y `MetodoPago`.
+
+### 6. Implementación de persistencia atómica, comprobantes y pruebas de borde (18/11/2026)
+* **Qué se hizo:** Se construyó `RepositorioArchivo` para guardar y cargar el estado completo en `datos_conjunto.txt`, se agregaron los requerimientos `RF-11` (historial de pagos), `RF-12` (cancelación de reservas) y `RF-13` (clase inmutable `Comprobante`), y se creó la suite `Verificacion.java` con 19 pruebas unitarias y de integración.
+* **Errores encontrados durante las pruebas y cómo se corrigieron:**
+  * **Error de precisión en punto flotante:** Al probar una multa de `$100.000` en mora (`× 1.10`), Java producía `110000.00000000001`, haciendo que un pago exacto de `$110.000` fallara por decimales residuales. Se corrigió redondeando `calcularValor()` a dos decimales (`Math.round(valor * 100) / 100.0`).
+  * **Validación de `NaN` e `Infinity`:** Las validaciones iniciales (`valor <= 0`) dejaban pasar `Double.NaN` porque cualquier comparación con `NaN` evalúa a `false`. Se creó la clase `Validar` usando `Double.isFinite()` y bloqueando el carácter `;` para no corromper el separador del archivo plano.
+  * **Escritura segura:** Para evitar perder datos si ocurría un fallo al guardar, se modificó `RepositorioArchivo.guardar()` para escribir primero en `datos_conjunto.txt.tmp` y luego reemplazar el archivo principal.
+  * **Inconsistencia en comprobantes con mora:** Al pagar una obligación vencida, el comprobante mostraba inicialmente solo el valor base en lugar del total cobrado con recargo; se añadió el atributo `valorPagado` a `ObligacionFinanciera` y se actualizó el formato del archivo manteniendo compatibilidad con registros anteriores.
+
+### 7. Interfaz gráfica en JavaFX y actualización del diagrama UML final (22/11/2026)
+* **Qué se hizo:** Se completaron las vistas FXML (`principal.fxml`, `propiedades.fxml`, `zonas_reservas.fxml`) y sus controladores (`PrincipalController`, `PropiedadesController`, `ZonasReservasController`), conectando validaciones visuales en tiempo real (campos marcados en rojo ante datos inválidos, `RF-10`) y guardado automático tras cada operación. Finalmente, se generó el diagrama UML definitivo reflejando fielmente la estructura de clases, paquetes y relaciones del código en `main`.
+
+![Diagrama UML Final - 22/11/2026](ruta/a/diagrama_uml_actualizado.png)
