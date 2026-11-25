@@ -31,7 +31,8 @@ public abstract class ObligacionFinanciera implements Pagable {
         if (estaPagada()) {
             return 0;
         }
-        return estaEnMora() ? valorBase * (1 + tasaMora()) : valorBase;
+        double valor = estaEnMora() ? valorBase * (1 + tasaMora()) : valorBase;
+        return Math.round(valor * 100) / 100.0;
     }
 
     public EstadoObligacion getEstado() {
