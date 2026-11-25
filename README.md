@@ -68,3 +68,6 @@ La interfaz gráfica no se pudo compilar en el entorno donde se escribió porque
 - No hay usuarios ni contraseñas: la ventana permite elegir qué propiedad actúa. Esa elección es de la interfaz, y la regla de quién puede cancelar sí se valida en negocio.
 
 https://github.com/DannaV18/ProyectoPoo/pull/1#issue-6592540273
+
+## Documentación
+
