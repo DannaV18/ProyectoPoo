@@ -1,31 +1,42 @@
 package conjunto.modelo;
 
-public class Piscina extends ZonaComun {
-    private final double profundidadMaxima;
-    private final boolean requiereCertificadoSalud;
+public abstract class ZonaComun {
 
-    public Piscina(String nombre, int capacidadMaxima, double costoAlquiler,
-                   double profundidadMaxima, boolean requiereCertificadoSalud) {
-        super(nombre, capacidadMaxima, costoAlquiler);
-        this.profundidadMaxima = profundidadMaxima;
-        this.requiereCertificadoSalud = requiereCertificadoSalud;
+    private final String nombre;
+    private final int capacidadMaxima;
+    private final double costoAlquiler;
+
+    protected ZonaComun(String nombre, int capacidadMaxima, double costoAlquiler) {
+        this.nombre = Validar.texto(nombre, "El nombre de la zona es obligatorio.");
+        if (capacidadMaxima <= 0) {
+            throw new IllegalArgumentException("La capacidad máxima debe ser mayor a cero.");
+        }
+        this.capacidadMaxima = capacidadMaxima;
+        this.costoAlquiler = Validar.noNegativo(costoAlquiler, "El costo de alquiler no puede ser negativo.");
     }
 
-    public double getProfundidadMaxima() {
-        return profundidadMaxima;
+    public abstract String getTipo();
+
+    public abstract String getDetalle();
+
+    public boolean tieneCosto() {
+        return costoAlquiler > 0;
     }
 
-    public boolean isRequiereCertificadoSalud() {
-        return requiereCertificadoSalud;
+    public String getNombre() {
+        return nombre;
+    }
+
+    public int getCapacidadMaxima() {
+        return capacidadMaxima;
+    }
+
+    public double getCostoAlquiler() {
+        return costoAlquiler;
     }
 
     @Override
-    public String getTipo() {
-        return "PISCINA";
-    }
-
-    @Override
-    public String getDetalle() {
-        return "Profundidad: " + profundidadMaxima + " m, certificado: " + requiereCertificadoSalud;
+    public String toString() {
+        return nombre;
     }
 }
