@@ -29,10 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-/**
- * Controlador de la pestaña de propiedades y cobros. No tiene reglas de negocio:
- * valida que los datos sean legibles (RF-10) y delega todo lo demás en GestorConjunto.
- */
 public class PropiedadesController {
 
     @FXML private TextField txtIdentificador;
@@ -94,13 +90,10 @@ public class PropiedadesController {
         tablaPropiedades.getSelectionModel().selectedItemProperty()
                 .addListener((obs, anterior, nueva) -> mostrarObligaciones(nueva));
 
-        // RF-10, validación sincrónica: el campo se marca en rojo mientras no sea un número.
         txtValor.textProperty().addListener((obs, anterior, nuevo) -> marcarValido(txtValor, nuevo));
         txtMontoPago.textProperty().addListener((obs, anterior, nuevo) -> marcarValido(txtMontoPago, nuevo));
-        // Enter en el valor envía el formulario (interacción con teclado).
         txtValor.setOnAction(e -> onAsignarObligacion());
 
-        // Doble clic en una obligación: copia su saldo al campo de pago (interacción con mouse).
         tablaObligaciones.setRowFactory(tabla -> {
             TableRow<ObligacionFinanciera> fila = new TableRow<>();
             fila.setOnMouseClicked(e -> {
@@ -120,8 +113,6 @@ public class PropiedadesController {
         refrescar();
     }
 
-
-    /** Vuelve a leer el gestor y actualiza las tablas, conservando la propiedad seleccionada y el filtro. */
     public void refrescar() {
         Propiedad seleccionada = tablaPropiedades.getSelectionModel().getSelectedItem();
         listaPropiedades.setAll(gestor.getPropiedades());
@@ -223,7 +214,6 @@ public class PropiedadesController {
         }
     }
 
-    /** RF-11: lista los pagos ya realizados de la propiedad seleccionada. */
     @FXML
     private void onVerHistorialPagos() {
         Propiedad propiedad = tablaPropiedades.getSelectionModel().getSelectedItem();
@@ -238,12 +228,11 @@ public class PropiedadesController {
         }
         String texto = pagos.stream()
                 .map(p -> p.getFechaPago() + "  " + p.getTipo() + " - " + p.getDescripcion()
-                        + "  " + formatoDinero(p.getValorBase()) + "  (" + p.getMetodoPago() + ")")
+                        + "  " + formatoDinero(p.getValorPagado()) + "  (" + p.getMetodoPago() + ")")
                 .collect(Collectors.joining("\n"));
         Dialogos.info("Historial de pagos de " + propiedad, texto);
     }
 
-    /** RF-13: muestra el comprobante del pago seleccionado en la tabla de obligaciones. */
     @FXML
     private void onVerComprobante() {
         Propiedad propiedad = tablaPropiedades.getSelectionModel().getSelectedItem();
@@ -279,7 +268,6 @@ public class PropiedadesController {
         Dialogos.info("Cartera morosa", texto);
     }
 
-    /** Fábrica de la interfaz: el combo elige el tipo y aquí se crea la subclase correspondiente. */
     private ObligacionFinanciera crearObligacion(String tipo, String descripcion, double valor, LocalDate vencimiento) {
         return switch (tipo) {
             case "Multa" -> new Multa(descripcion, valor, vencimiento);
@@ -288,7 +276,6 @@ public class PropiedadesController {
         };
     }
 
-    /** RF-10: si el texto no es un número, avisa y no deja continuar. */
     private Double leerMonto(TextField campo, String nombreCampo) {
         try {
             return Double.parseDouble(campo.getText().trim());
