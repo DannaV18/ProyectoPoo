@@ -6,6 +6,7 @@ import conjunto.modelo.CuotaMensual;
 import conjunto.modelo.MetodoPago;
 import conjunto.modelo.Multa;
 import conjunto.modelo.ObligacionFinanciera;
+import conjunto.modelo.Piscina;
 import conjunto.modelo.Propiedad;
 import conjunto.modelo.Reserva;
 import conjunto.modelo.Residente;
@@ -24,10 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Pruebas sencillas sin JUnit. Ejecutar: java -cp target/classes:target/test-classes conjunto.Verificacion
- * Cada comprobación imprime OK o FALLA, y el programa termina con código 1 si alguna falla.
- */
 public class Verificacion {
 
     private static int fallos = 0;
@@ -47,6 +44,10 @@ public class Verificacion {
         pruebaRF11HistorialSoloPagadasDeLaPropiedad();
         pruebaRF12SoloElDuenoCancelaYLiberaHorario();
         pruebaRF13ComprobanteDeUnPagoRealizado();
+        pruebaRF10RechazaNaNeInfinity();
+        pruebaRF13ComprobanteMuestraRecargoPagado();
+        pruebaRNF01ValorPagadoSeConservaYArchivoAntiguoSeLee();
+        pruebaRF07PiscinaSeGuardaYSeCarga();
 
         System.out.println();
         System.out.println(total - fallos + " de " + total + " comprobaciones correctas.");
@@ -88,7 +89,6 @@ public class Verificacion {
         g.asignarObligacion("Casa 1", new CuotaMensual("Cuota", 100000, ayer));
         g.asignarObligacion("Casa 1", new Multa("Ruido", 100000, ayer));
         double total = g.calcularDeudaTotal("Casa 1");
-        // Cuota vencida: 100000 * 1.05 = 105000. Multa vencida: 100000 * 1.10 = 110000.
         comprobar(Math.abs(total - 215000) < 0.01, "RF-04 aplica 5 % a la cuota y 10 % a la multa vencidas (total " + total + ")");
     }
 
@@ -246,6 +246,70 @@ public class Verificacion {
         boolean esperado = c.getNumero().equals("CMP-CASA14-001") && c.getMonto() == 120000
                 && c.getMetodo() == MetodoPago.EFECTIVO && c.comoTexto().contains("CMP-CASA14-001");
         comprobar(sinPagoNoHay && esperado, "RF-13 el comprobante solo existe para pagos realizados y tiene número, monto, fecha y método");
+    }
+
+    private static void pruebaRF10RechazaNaNeInfinity() {
+        boolean valorNaN = lanzaIllegalArgument(() -> new Multa("x", Double.NaN, LocalDate.now()));
+        boolean valorInfinito = lanzaIllegalArgument(() -> new Multa("x", Double.POSITIVE_INFINITY, LocalDate.now()));
+        boolean costoNaN = lanzaIllegalArgument(() -> new SalonSocial("S", 10, Double.NaN, false));
+        CuotaMensual cuota = new CuotaMensual("Cuota", 100000, LocalDate.now().plusDays(5));
+        boolean pagoNaN = lanzaIllegalArgument(() -> cuota.pagar(Double.NaN, MetodoPago.EFECTIVO));
+        comprobar(valorNaN && valorInfinito && costoNaN && pagoNaN && !cuota.estaPagada(),
+                "RF-10 rechaza NaN e Infinity como valor, costo o monto de pago");
+    }
+
+    private static void pruebaRF13ComprobanteMuestraRecargoPagado() {
+        GestorConjunto g = new GestorConjunto();
+        g.registrarPropiedad(new Propiedad("Casa 15", "Calle 1", residente()));
+        CuotaMensual cuota = new CuotaMensual("Cuota vencida", 100000, LocalDate.now().minusDays(2));
+        g.asignarObligacion("Casa 15", cuota);
+        g.registrarPago("Casa 15", cuota, 105000, MetodoPago.PSE);
+        Comprobante c = g.generarComprobante("Casa 15", cuota);
+        comprobar(Math.abs(c.getMonto() - 105000) < 0.01 && Math.abs(c.getValorBase() - 100000) < 0.01
+                        && Math.abs(cuota.getValorPagado() - 105000) < 0.01,
+                "RF-13 un pago en mora deja en el comprobante el valor pagado con recargo ($105.000)");
+    }
+
+    private static void pruebaRNF01ValorPagadoSeConservaYArchivoAntiguoSeLee() throws PersistenciaException, IOException {
+        Path archivo = crearRuta("valor_pagado");
+        GestorConjunto g = new GestorConjunto();
+        g.registrarPropiedad(new Propiedad("Casa 16", "Calle 1", residente()));
+        Multa multa = new Multa("Ruido", 100000, LocalDate.now().minusDays(1));
+        g.asignarObligacion("Casa 16", multa);
+        g.registrarPago("Casa 16", multa, 110000, MetodoPago.TARJETA);
+        RepositorioArchivo repo = new RepositorioArchivo(archivo);
+        repo.guardar(g);
+        double leido = repo.cargar().historialDePagos("Casa 16").get(0).getValorPagado();
+
+        Path antiguo = crearRuta("formato_antiguo");
+        Files.writeString(antiguo, "PROPIEDAD;Casa 1;Calle 1;Ana;1001\n"
+                + "OBLIGACION;Casa 1;CUOTA;Cuota;50000.0;2026-01-31;true;2026-01-20;EFECTIVO\n", StandardCharsets.UTF_8);
+        double antiguoLeido = new RepositorioArchivo(antiguo).cargar().historialDePagos("Casa 1").get(0).getValorPagado();
+
+        comprobar(Math.abs(leido - 110000) < 0.01 && Math.abs(antiguoLeido - 50000) < 0.01,
+                "RNF-01 el valor pagado se guarda, y los archivos del formato anterior se siguen leyendo");
+    }
+
+    private static void pruebaRF07PiscinaSeGuardaYSeCarga() throws PersistenciaException, IOException {
+        Path archivo = crearRuta("piscina");
+        GestorConjunto g = new GestorConjunto();
+        g.configurarZonaComun(new Piscina("Piscina", 30, 20000, 1.8, true));
+        RepositorioArchivo repo = new RepositorioArchivo(archivo);
+        repo.guardar(g);
+        Piscina leida = (Piscina) repo.cargar().buscarZona("Piscina").orElseThrow();
+        boolean sinProfundidad = lanzaIllegalArgument(() -> new Piscina("P", 10, 0, 0, false));
+        comprobar(leida.getProfundidadMaxima() == 1.8 && leida.isRequiereCertificadoSalud()
+                        && leida.getCapacidadMaxima() == 30 && sinProfundidad,
+                "RF-07 la piscina se guarda y se vuelve a cargar con su profundidad y certificado");
+    }
+
+    private static boolean lanzaIllegalArgument(Runnable accion) {
+        try {
+            accion.run();
+            return false;
+        } catch (IllegalArgumentException e) {
+            return true;
+        }
     }
 
     private static Path crearRuta(String nombre) throws IOException {
