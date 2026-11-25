@@ -1,4 +1,3 @@
-
 package conjunto.modelo;
 
 import java.time.LocalDate;
@@ -66,6 +65,7 @@ public abstract class ObligacionFinanciera implements Pagable {
         if (pagada) {
             throw new IllegalStateException("Esta obligación ya está pagada.");
         }
+        Validar.positivo(monto, "El monto a pagar debe ser un número mayor a cero.");
         double deuda = calcularValor();
         if (monto < deuda) {
             throw new IllegalArgumentException(
