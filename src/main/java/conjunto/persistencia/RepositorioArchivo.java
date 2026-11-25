@@ -7,6 +7,7 @@ import conjunto.modelo.EstadoReserva;
 import conjunto.modelo.MetodoPago;
 import conjunto.modelo.Multa;
 import conjunto.modelo.ObligacionFinanciera;
+import conjunto.modelo.Piscina;
 import conjunto.modelo.Propiedad;
 import conjunto.modelo.Reserva;
 import conjunto.modelo.Residente;
@@ -89,6 +90,7 @@ public class RepositorioArchivo {
             case "SALON" -> new SalonSocial(nombre, capacidad, costo, Boolean.parseBoolean(c[5]));
             case "BBQ" -> new ZonaBbq(nombre, capacidad, costo, Integer.parseInt(c[5]));
             case "CANCHA" -> new CanchaDeFutbol(nombre, capacidad, costo, Boolean.parseBoolean(c[5]));
+            case "PISCINA" -> Piscina.desdeDetalle(nombre, capacidad, costo, c[5]);
             default -> throw new IllegalArgumentException("Tipo de zona desconocido: " + c[1]);
         };
     }
