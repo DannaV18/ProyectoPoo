@@ -2,14 +2,6 @@ package conjunto.modelo;
 
 import java.time.LocalDate;
 
-/**
- * Clase abstracta: todo cobro tiene descripción, valor base, vencimiento y un estado.
- * No se puede instanciar directamente, porque "un cobro genérico" no tiene sentido en el negocio.
- *
- * <p>Usa el patrón "método plantilla": calcularValor() está definido aquí y delega en
- * tasaMora(), que cada subclase sobrescribe. Así cada tipo aplica su propia regla
- * sin que el código de afuera pregunte de qué tipo es (RF-04).</p>
- */
 public abstract class ObligacionFinanciera implements Pagable {
 
     private final String descripcion;
@@ -18,6 +10,7 @@ public abstract class ObligacionFinanciera implements Pagable {
     private boolean pagada;
     private LocalDate fechaPago;
     private MetodoPago metodoPago;
+    private double valorPagado;
 
     protected ObligacionFinanciera(String descripcion, double valorBase, LocalDate fechaVencimiento) {
         this.descripcion = Validar.texto(descripcion, "La descripción de la obligación es obligatoria.");
@@ -28,13 +21,10 @@ public abstract class ObligacionFinanciera implements Pagable {
         this.fechaVencimiento = fechaVencimiento;
     }
 
-    /** Cada tipo de obligación define su propio recargo por mora (0 si no tiene). */
     protected abstract double tasaMora();
 
-    /** Tipo legible para la interfaz, por ejemplo "Cuota mensual". */
     public abstract String getTipo();
 
-    /** Código corto que usa el archivo de datos: CUOTA, MULTA o RESERVA. */
     public abstract String getCodigoArchivo();
 
     public double calcularValor() {
@@ -74,6 +64,7 @@ public abstract class ObligacionFinanciera implements Pagable {
         if (metodo == null) {
             throw new IllegalArgumentException("Debe indicar el método de pago.");
         }
+        this.valorPagado = deuda;
         this.pagada = true;
         this.fechaPago = LocalDate.now();
         this.metodoPago = metodo;
@@ -99,10 +90,12 @@ public abstract class ObligacionFinanciera implements Pagable {
         return metodoPago;
     }
 
-    /**
-     * Restaura el estado de pago al leer el archivo. Solo lo usa la capa de persistencia.
-     */
-    public void restaurarPago(LocalDate fecha, MetodoPago metodo) {
+    public double getValorPagado() {
+        return valorPagado;
+    }
+
+    public void restaurarPago(LocalDate fecha, MetodoPago metodo, double valorPagado) {
+        this.valorPagado = Validar.positivo(valorPagado, "El valor pagado guardado no es válido.");
         this.pagada = true;
         this.fechaPago = fecha;
         this.metodoPago = metodo;
