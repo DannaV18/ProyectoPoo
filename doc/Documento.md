@@ -49,4 +49,4 @@ Este documento registra el procedimiento cronológico de análisis, diseño, pru
 ### 7. Interfaz gráfica en JavaFX y actualización del diagrama UML final (22/11/2026)
 * **Qué se hizo:** Se completaron las vistas FXML (`principal.fxml`, `propiedades.fxml`, `zonas_reservas.fxml`) y sus controladores (`PrincipalController`, `PropiedadesController`, `ZonasReservasController`), conectando validaciones visuales en tiempo real (campos marcados en rojo ante datos inválidos, `RF-10`) y guardado automático tras cada operación. Finalmente, se generó el diagrama UML definitivo reflejando fielmente la estructura de clases, paquetes y relaciones del código en `main`.
 
-![Diagrama UML Final - 22/11/2026](ruta/a/diagrama_uml_actualizado.png)
+![image alt](https://github.com/DannaV18/ProyectoPoo/blob/d24a1be6b9846ecc2a5e9631b285888c890c4847/doc/fotos/diagrama_uml_actualizado.png)
