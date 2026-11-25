@@ -11,7 +11,7 @@ Este documento registra el procedimiento cronológico de análisis, diseño, pru
 ### 2. Primer diseño orientado a objetos y diagrama UML inicial (20/10/2026)
 * **Qué se hizo:** Se construyó el primer diagrama de clases para la Entrega 2, estructurando las entidades `Propiedad`, `Residente`, `AdministradorConjunto`, `ZonaComun`, `Reserva` (con su clase anidada `Horario`), las interfaces `Pagable` y `Reservable`, y la jerarquía de `ObligacionFinanciera` (`CuotaMensual`, `Multa` y `Reserva`).
 
-![Diagrama UML Inicial - 20/10/2026](ruta/a/diagrama_uml_inicial.png)
+![image alt](https://github.com/DannaV18/ProyectoPoo/blob/505f3031888001b0edd4f273613b94cafde5c17b/doc/WhatsApp%20Image%202026-10-21%20at%206.22.09%20PM.jpeg)
 
 * **Problemas detectados al intentar pasarlo a código:**
   * **Fallo conceptual en `Reserva`:** En este diagrama `Reserva` heredaba directamente de `ObligacionFinanciera`. Al empezar a programar los casos de uso nos dimos cuenta de que **esto no podía funcionar así**: si un residente reservaba una zona gratuita (como la cancha), el sistema lo obligaba a crear una deuda financiera de $0, y cancelar una reserva implicaba tener que borrar o alterar registros del historial financiero de la propiedad.
