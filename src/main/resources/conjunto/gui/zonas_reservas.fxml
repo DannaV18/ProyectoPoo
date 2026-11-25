@@ -35,7 +35,7 @@
                   <HBox spacing="8.0">
                      <children>
                         <CheckBox fx:id="chkEspecial" text="Tiene cocina" />
-                        <TextField fx:id="txtParrillas" prefWidth="120.0" promptText="Número de parrillas" />
+                        <TextField fx:id="txtDatoNumerico" prefWidth="140.0" promptText="Número de parrillas" />
                         <Button onAction="#onCrearZona" text="Registrar zona" />
                      </children>
                   </HBox>
